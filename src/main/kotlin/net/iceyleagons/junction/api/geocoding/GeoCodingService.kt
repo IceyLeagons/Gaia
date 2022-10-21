@@ -1,5 +1,8 @@
 package net.iceyleagons.junction.api.geocoding
 
+import net.iceyleagons.junction.api.geocoding.responses.GeoCodingResponse
+import net.iceyleagons.junction.api.geocoding.responses.ReverseGeoCodingResponse
+import net.iceyleagons.junction.api.geolocation.GeoLocationResponse
 import java.math.BigDecimal
 
 /**
@@ -9,7 +12,11 @@ import java.math.BigDecimal
  */
 interface GeoCodingService {
 
-    fun decode(lat: BigDecimal, long: BigDecimal): ReverseGeoCodingResponse
+    fun decode(lat: Double, long: Double): ReverseGeoCodingResponse
+
+    fun decode(location: GeoLocationResponse): ReverseGeoCodingResponse
+
+    fun codeToReverse(query: String): ReverseGeoCodingResponse
 
     fun code(query: String): GeoCodingResponse
 }

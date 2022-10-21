@@ -13,6 +13,6 @@ interface GeoLocationService {
      * Whether the geolocation can provide accuracy within a street at max a suburb.
      * If the location is accurate enough, the software will scan for public wifis.
      */
-    fun accurateEnoughForPublicScanning(): Boolean
+    val accurateEnoughForPublicScanning: Boolean
 
 }

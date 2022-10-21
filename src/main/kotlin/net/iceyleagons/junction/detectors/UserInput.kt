@@ -5,8 +5,9 @@ import java.util.*
 
 data class UserInput(
     val ip: String,
+    val knownLocations: Optional<List<String>>,
     val shippingAddress: Optional<String>,
     val billingAddress: Optional<String>,
-    val gpsLat: Optional<BigDecimal>,
-    val gpsLon: Optional<BigDecimal>
+    val gpsLatitude: Optional<Double>,
+    val gpsLongitude: Optional<Double>
 )

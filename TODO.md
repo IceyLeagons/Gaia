@@ -1,7 +1,8 @@
  - basic geolocation from ip
- - vpn detection
+ - vpn detection ✅
     - based on isp???
-    - location / check if geolocation is equal to a datacenter /
+    - our custom detection
+    - location / check if geolocation is equal to a datacenter / !!!!!
  - impossible travel
     - if user travelled more than ~120kms in an hour, mark as suspicious
         - magic number, 'cause only planes and trains go faster than 120
@@ -14,5 +15,9 @@
  - if privacy doesn't matter - heat maps for locations
  - check if shipping location is considered a house - can use google's maps api for this
  - check if currently connected wifi is a possible freewifi
-    - wigle.net - check if ip is on possible freenets
-    - wifimap.io
+    - wigle.net - check if ip is on possible freenets ✅
+    - wifimap.io ✅
+   
+ - credit card (messenger)
+ - FELÜLET MARKETINGRE
+ - option to switch between providers (geo so google or the free one)
