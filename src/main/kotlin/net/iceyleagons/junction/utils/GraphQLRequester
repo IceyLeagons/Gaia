@@ -1,0 +1,10 @@
+package net.iceyleagons.junction.utils
+
+import org.json.JSONObject
+
+class GraphQLRequester(val url: String, val query: String) {
+
+    fun request(factory: RestTemplateFactory): JSONObject {
+        
+    }
+}

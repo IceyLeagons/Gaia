@@ -5,6 +5,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.0.14.RELEASE"
 	kotlin("jvm") version "1.7.20"
 	kotlin("plugin.spring") version "1.7.20"
+    kotlin("plugin.serialization") version "1.7.20"
 }
 
 group = "net.iceyleagons"
@@ -38,8 +39,10 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
-		freeCompilerArgs = listOf("-Xjsr305=strict")
+		freeCompilerArgs += "-Xjsr305=strict"
+        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 		jvmTarget = "17"
+        languageVersion = "1.8"
 	}
 }
 
