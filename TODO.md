@@ -1,0 +1,18 @@
+ - basic geolocation from ip
+ - vpn detection
+    - based on isp???
+    - location / check if geolocation is equal to a datacenter /
+ - impossible travel
+    - if user travelled more than ~120kms in an hour, mark as suspicious
+        - magic number, 'cause only planes and trains go faster than 120
+ - check for contradictions between billing address and shipping address
+    - also check if current location is near to either of them
+ - check for contradictions between known cellphone providers - if any
+ - check for contradictions between "precise location/location services" and geolocation derived from ip
+  (precise location is when a website asks for your location - it IS different from ip-based geolocation)
+    - this is for stuff like mock location on android
+ - if privacy doesn't matter - heat maps for locations
+ - check if shipping location is considered a house - can use google's maps api for this
+ - check if currently connected wifi is a possible freewifi
+    - wigle.net - check if ip is on possible freenets
+    - wifimap.io
