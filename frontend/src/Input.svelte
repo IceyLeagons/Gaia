@@ -2,14 +2,14 @@
     import swal from "sweetalert";
     import IpHistory from "./IpHistory.svelte";
 
-    let ipAddress;
-    let shippingAddress;
-    let billingAddress;
-    let gpsLatitude;
-    let gpsLongitude;
-    let ipHistory = [];
+    let ipAddress: string;
+    let shippingAddress: string;
+    let billingAddress: string;
+    let gpsLatitude: number;
+    let gpsLongitude: number;
+    let ipHistory: any[] = [];
 
-    export let setData: (any);
+    export let setData: any;
 
     function addMore() {
         ipHistory = [...ipHistory, {key: "", value: ""}];
@@ -25,7 +25,11 @@
 
     function submit() {
         if (!ipAddress) {
-            swal("Missing info!", "Please fill out at least, the IP Address field!", "error");
+            swal(
+                "Missing info!",
+                "Please fill out at least, the IP Address field!",
+                "error"
+            );
             return;
         }
 
@@ -35,29 +39,34 @@
             billingAddress: billingAddress,
             gpsLatitude: gpsLatitude,
             gpsLongitude: gpsLongitude,
-            previousIPs: transformIpHistory()
+            previousIPs: transformIpHistory(),
         };
+
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
 
         loader = true;
-        fetch("http://127.0.0.1:8080/runCheck", {
+        fetch("/runCheck", {
             method: "POST",
             headers: myHeaders,
-            body: JSON.stringify(request)
-        }).then(data => {
-            data.json().then(json => {
+            body: JSON.stringify(request),
+        }).then((data) => {
+            data.json().then((json) => {
                 setData(json);
-            })
+            }).catch(e => {
+                swal("Oh snap!", "We got an invalid JSON data! Someone must have messed with the API!", "error");
+            });
+        }).catch(err => {
+            swal("Oh snap!", "We could not connect to the server!", "error");
         }).finally(() => {
             loader = false;
-        })
+        });
     }
 
     function transformIpHistory() {
         let result = {};
 
-        ipHistory.forEach(obj => {
+        ipHistory.forEach((obj) => {
             if (obj["key"] !== "" || obj["value"] !== "") {
                 let time = obj["key"];
                 let ip = obj["value"];
@@ -68,9 +77,10 @@
         return result;
     }
 </script>
+
 {#if loader}
     <div class="popup">
-        <span class="loader"></span>
+        <span class="loader"/>
     </div>
 {/if}
 <div class="container card">
@@ -78,7 +88,11 @@
         <div class="fields fields--1">
             <label class="field">
                 <span class="field__label">IP Address</span>
-                <input bind:value={ipAddress} class="field__input text-center" type="text"/>
+                <input
+                        bind:value={ipAddress}
+                        class="field__input text-center"
+                        type="text"
+                />
             </label>
         </div>
 
@@ -104,9 +118,13 @@
             </label>
         </div>
 
-        <button class="button outlined" on:click={() => {
-      opened = true;
-    }} style="width: 50%; margin-inline: auto;">Add IP Address History
+        <button
+                class="button outlined"
+                on:click={() => {
+        opened = true;
+      }}
+                style="width: 50%; margin-inline: auto;"
+        >Add IP Address History
         </button>
     </div>
     <hr/>
@@ -117,14 +135,14 @@
 {#if opened}
     <div class="popup">
         <div class="container">
-            <IpHistory close={close} history={ipHistory} addMore={addMore}/>
+            <IpHistory {close} history={ipHistory} {addMore}/>
         </div>
     </div>
 {/if}
 
 <style lang="scss">
   .popup::before {
-    content: ' ';
+    content: " ";
     position: fixed;
     z-index: -1;
     width: 100%;
@@ -162,6 +180,8 @@
   }
 
   .container {
+    width: 100%;
+
     border-radius: 10px;
     max-width: 40rem;
     padding: 1rem 2rem 0;
@@ -220,10 +240,6 @@
     grid-template-columns: 1fr 1fr;
   }
 
-  .fields--3 {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
   input {
     color: white;
   }
@@ -240,7 +256,7 @@
     border: 0;
     cursor: pointer;
     outline: 0;
-    transition: .3s;
+    transition: 0.3s;
 
     &:hover {
       transform: translateY(-3px);
