@@ -17,11 +17,11 @@ import net.iceyleagons.junction.services.DetectionServiceImpl
  */
 @Serializable
 data class Rule(
-        @Serializable(with = DetectorSerializer::class) val detector: Detector,
-        val anomaly: String,
-        val operation: Char,
-        val score: Double
-    ) {
+    @Serializable(with = DetectorSerializer::class) val detector: Detector,
+    val anomaly: String,
+    val operation: Char,
+    val score: Double
+) {
 
     companion object {
         val EMPTY_RULE by lazy {

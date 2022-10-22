@@ -1,64 +1,125 @@
 <script lang="ts">
-  import IpHistory from "./IpHistory.svelte";
+    import swal from "sweetalert";
+    import IpHistory from "./IpHistory.svelte";
 
-  let history = [];
+    let ipAddress;
+    let shippingAddress;
+    let billingAddress;
+    let gpsLatitude;
+    let gpsLongitude;
+    let ipHistory = [];
 
-  function addMore() {
-        history = [...history, {key: "", value: ""}];
-  }
+    export let setData: (any);
 
-  let opened = false;
-  function close() {
-    opened = false;
-  }
+    function addMore() {
+        ipHistory = [...ipHistory, {key: "", value: ""}];
+    }
+
+    let opened = false;
+
+    function close() {
+        opened = false;
+    }
+
+    let loader = false;
+
+    function submit() {
+        if (!ipAddress) {
+            swal("Missing info!", "Please fill out at least, the IP Address field!", "error");
+            return;
+        }
+
+        let request = {
+            ip: ipAddress,
+            shippingAddress: shippingAddress,
+            billingAddress: billingAddress,
+            gpsLatitude: gpsLatitude,
+            gpsLongitude: gpsLongitude,
+            previousIPs: transformIpHistory()
+        };
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        loader = true;
+        fetch("http://127.0.0.1:8080/runCheck", {
+            method: "POST",
+            headers: myHeaders,
+            body: JSON.stringify(request)
+        }).then(data => {
+            data.json().then(json => {
+                setData(json);
+            })
+        }).finally(() => {
+            loader = false;
+        })
+    }
+
+    function transformIpHistory() {
+        let result = {};
+
+        ipHistory.forEach(obj => {
+            if (obj["key"] !== "" || obj["value"] !== "") {
+                let time = obj["key"];
+                let ip = obj["value"];
+                result[time] = ip;
+            }
+        });
+
+        return result;
+    }
 </script>
-
+{#if loader}
+    <div class="popup">
+        <span class="loader"></span>
+    </div>
+{/if}
 <div class="container card">
-  <div class="form">
-    <div class="fields fields--1">
-      <label class="field">
-        <span class="field__label">IP Address</span>
-        <input class="field__input text-center" type="text" />
-      </label>
-    </div>
+    <div class="form">
+        <div class="fields fields--1">
+            <label class="field">
+                <span class="field__label">IP Address</span>
+                <input bind:value={ipAddress} class="field__input text-center" type="text"/>
+            </label>
+        </div>
 
-    <h3 class="separator">Optional Information:</h3>
-    <div class="fields fields--2">
-      <label class="field">
-        <span class="field__label">Shipping Address</span>
-        <input class="field__input" type="text" />
-      </label>
-      <label class="field">
-        <span class="field__label">Billing Address</span>
-        <input class="field__input" type="text" />
-      </label>
-    </div>
-    <div class="fields fields--2">
-      <label class="field">
-        <span class="field__label">GPS Latitude</span>
-        <input class="field__input" type="number" />
-      </label>
-      <label class="field">
-        <span class="field__label">GPS Longitude</span>
-        <input class="field__input" type="number" />
-      </label>
-    </div>
+        <h3 class="separator">Optional Information:</h3>
+        <div class="fields fields--2">
+            <label class="field">
+                <span class="field__label">Shipping Address</span>
+                <input bind:value={shippingAddress} class="field__input" type="text"/>
+            </label>
+            <label class="field">
+                <span class="field__label">Billing Address</span>
+                <input bind:value={billingAddress} class="field__input" type="text"/>
+            </label>
+        </div>
+        <div class="fields fields--2">
+            <label class="field">
+                <span class="field__label">GPS Latitude</span>
+                <input bind:value={gpsLatitude} class="field__input" type="number"/>
+            </label>
+            <label class="field">
+                <span class="field__label">GPS Longitude</span>
+                <input bind:value={gpsLongitude} class="field__input" type="number"/>
+            </label>
+        </div>
 
-    <button class="button outlined" style="width: 50%; margin-inline: auto;" on:click={() => {
+        <button class="button outlined" on:click={() => {
       opened = true;
-    }}>Add IP Address History</button>
-  </div>
-  <hr />
-  <button class="button">Check for fraud</button>
-  <hr />
+    }} style="width: 50%; margin-inline: auto;">Add IP Address History
+        </button>
+    </div>
+    <hr/>
+    <button class="button" on:click={submit}>Check for fraud</button>
+    <hr/>
 </div>
 
 {#if opened}
-  <div class="popup">
-    <div class="container">
-      <IpHistory close={close} history={history} addMore={addMore} />
+    <div class="popup">
+        <div class="container">
+            <IpHistory close={close} history={ipHistory} addMore={addMore}/>
+        </div>
     </div>
-  </div>
 {/if}
 
 <style lang="scss">
@@ -145,6 +206,7 @@
     appearance: none;
     background-color: transparent;
   }
+
   .field:focus-within {
     border-color: white;
   }
@@ -153,9 +215,11 @@
     display: grid;
     grid-gap: 1rem;
   }
+
   .fields--2 {
     grid-template-columns: 1fr 1fr;
   }
+
   .fields--3 {
     grid-template-columns: 1fr 1fr 1fr;
   }
@@ -179,7 +243,7 @@
     transition: .3s;
 
     &:hover {
-        transform: translateY(-3px);
+      transform: translateY(-3px);
     }
 
     &.outlined {

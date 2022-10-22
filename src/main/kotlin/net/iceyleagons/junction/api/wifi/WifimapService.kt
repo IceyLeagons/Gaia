@@ -9,6 +9,11 @@ import net.iceyleagons.junction.api.wifi.responses.WifimapHotspot
  */
 interface WifimapService {
 
-    fun findPublicWifisAround(latitude: Double, longitude: Double, maxRange: Double, cityName: String): Array<WifimapHotspot>
+    fun findPublicWifisAround(
+        latitude: Double,
+        longitude: Double,
+        maxRange: Double,
+        cityName: String
+    ): Array<WifimapHotspot>
 
 }

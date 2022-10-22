@@ -2,7 +2,7 @@ package net.iceyleagons.junction.detectors
 
 import org.springframework.beans.factory.BeanFactory
 
-interface Detector{
+interface Detector {
 
     /**
      * The name of this detector.
@@ -13,6 +13,8 @@ interface Detector{
      * Whether this detector requires precise location data.
      */
     val requiresGpsData: Boolean
+
+    val maxScore: Int
 
     /**
      * @param userInput the input passed via the endpoint

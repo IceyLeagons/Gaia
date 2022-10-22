@@ -22,7 +22,9 @@ class GoogleAPIServiceImpl(private val geoApiContext: GeoApiContext) : GoogleAPI
         // Because this is the fallback, we want to throw error here
         try {
             val result = GeocodingApi.geocode(geoApiContext, query).address(query).await()
-            return GeoCodingResponse.fromGoogleResponse(result[0] ?: throw GeoCodingException("Unable to geo-code address."))
+            return GeoCodingResponse.fromGoogleResponse(
+                result[0] ?: throw GeoCodingException("Unable to geo-code address.")
+            )
         } catch (e: Exception) {
             throw GeoCodingException("Unable to geo-code address.")
         }

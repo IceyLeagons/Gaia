@@ -11,18 +11,19 @@ import org.springframework.context.annotation.PropertySource
 @SpringBootApplication
 @PropertySource(value = ["classpath:local.properties"])
 class JunctionApplication(@Value("\${apis.google.maps.key}") val apiKey: String) {
-	@Bean
-	fun json(): Json = Json {
-		prettyPrint = false
-		coerceInputValues = true
-		ignoreUnknownKeys = true
-	}
+    @Bean
+    fun json(): Json = Json {
+        prettyPrint = false
+        coerceInputValues = true
+        ignoreUnknownKeys = true
+    }
 
-	@Bean("googleGeo")
-	fun googleGeoApiContext(): GeoApiContext {
-		return GeoApiContext.Builder().apiKey(apiKey).build()
-	}
+    @Bean("googleGeo")
+    fun googleGeoApiContext(): GeoApiContext {
+        return GeoApiContext.Builder().apiKey(apiKey).build()
+    }
 }
+
 fun main(args: Array<String>) {
-	runApplication<JunctionApplication>(*args)
+    runApplication<JunctionApplication>(*args)
 }

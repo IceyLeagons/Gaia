@@ -17,6 +17,7 @@ class ShippingAnomalyDetector : Detector, Journalist {
 
     override val name = "Shipping Address Discrepancies"
     override val requiresGpsData = false
+    override val maxScore: Int = 100
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun getScore(userInput: UserInput, context: BeanFactory): Rule {
@@ -30,7 +31,7 @@ class ShippingAnomalyDetector : Detector, Journalist {
                 }
 
                 else -> {
-                    Rule(this, "Area is likely not a house!", '+', 20.0)
+                    Rule(this, "Area is likely not a house!", '+', 90.0)
                 }
             }
         }
@@ -42,7 +43,7 @@ class ShippingAnomalyDetector : Detector, Journalist {
                 }
 
                 else -> {
-                    Rule(this, "Area is likely not a house!", '+', 20.0)
+                    Rule(this, "Area is likely not a house!", '+', 90.0)
                 }
             }
         }
@@ -54,7 +55,7 @@ class ShippingAnomalyDetector : Detector, Journalist {
                 }
 
                 else -> {
-                    Rule(this, "Area is likely not a house!", '+', 20.0)
+                    Rule(this, "Area is likely not a house!", '+', 90.0)
                 }
             }
         }

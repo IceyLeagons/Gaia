@@ -12,12 +12,13 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.stereotype.Service
 import org.springframework.web.client.postForObject
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
 @Service
-class WifimapService(val restTemplateBuilder: RestTemplateBuilder, val json: Json,
-                     @Value("\${caching.expirationMinutes}") val expire: Int, @Value("\${caching.maxSize}") val maxSize: Long) :
+class WifimapService(
+    val restTemplateBuilder: RestTemplateBuilder, val json: Json,
+    @Value("\${caching.expirationMinutes}") val expire: Int, @Value("\${caching.maxSize}") val maxSize: Long
+) :
     WifimapService {
 
     val cache: Cache<Long, Array<WifimapHotspot>> by lazy {
@@ -49,7 +50,8 @@ class WifimapService(val restTemplateBuilder: RestTemplateBuilder, val json: Jso
                 )
 
             json.decodeFromString<Array<WifimapHotspot>>(
-                JSONObject(response).getJSONObject("data").getJSONArray("cities").getJSONObject(0).getJSONArray("hotspots").toString()
+                JSONObject(response).getJSONObject("data").getJSONArray("cities").getJSONObject(0)
+                    .getJSONArray("hotspots").toString()
             ).filter {
                 (long1 < it.lng && it.lng < long2) && (lat1 < it.lat && it.lat < lat2)
             }.toTypedArray()

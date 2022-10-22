@@ -1,16 +1,13 @@
 package net.iceyleagons.junction.api.geocoding.responses
 
 import com.google.maps.model.GeocodingResult
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import java.lang.Exception
 
 
 /**
@@ -70,7 +67,14 @@ data class GeoCodingResponse(
             val latLng = geocodingResult.geometry.location
             val displayName = geocodingResult.formattedAddress
 
-            return GeoCodingResponse(placeId, latLng.lat, latLng.lng, displayName, "google_type", geocodingResult.types[0].name)
+            return GeoCodingResponse(
+                placeId,
+                latLng.lat,
+                latLng.lng,
+                displayName,
+                "google_type",
+                geocodingResult.types[0].name
+            )
         }
     }
 }

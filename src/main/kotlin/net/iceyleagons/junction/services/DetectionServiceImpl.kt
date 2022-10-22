@@ -3,6 +3,7 @@ package net.iceyleagons.junction.services
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import net.iceyleagons.junction.api.DetectionService
+import net.iceyleagons.junction.api.geocoding.GeoCodingService
 import net.iceyleagons.junction.detectors.Detector
 import net.iceyleagons.junction.detectors.Rule
 import net.iceyleagons.junction.detectors.UserInput
@@ -32,15 +33,15 @@ class DetectionServiceImpl(val beanFactory: BeanFactory, val json: Json) : Detec
         registerDetector(LocationIPDifferenceDetector())
         registerDetector(ProxyDetector())
         registerDetector(PublicWifiDetector())
-        registerDetector(ShipBillDifferenceDetector())
+        // registerDetector(ShipBillDifferenceDetector())
         registerDetector(ShippingAnomalyDetector())
     }
 
     override fun checkForFraud(userInput: UserInput): JSONObject {
         val start = System.currentTimeMillis()
-        val data = FraudScore(score = .0, calculationTime = 0)
+        val data = FraudScore(score = .0, calculationTime = 0, maxScore = 0.0)
 
-        var providedNumber = 0
+        var maxScore = 0.0
 
         for (detector in detectors) {
             if (detector.requiresGpsData && (userInput.gpsLatitude.isEmpty && userInput.gpsLongitude.isEmpty))
@@ -53,13 +54,14 @@ class DetectionServiceImpl(val beanFactory: BeanFactory, val json: Json) : Detec
                     '+' -> {
                         data.score += rule.score
                     }
+
                     '-' -> {
                         data.score -= rule.score
                     }
                 }
 
                 if (rule.score > 0) {
-                    providedNumber++
+                    maxScore += detector.maxScore
                 }
                 data.data += rule
             }
@@ -68,13 +70,40 @@ class DetectionServiceImpl(val beanFactory: BeanFactory, val json: Json) : Detec
         // TODO possibly have weighted scores from detectors???
 
         // Since we can have many detectors which will all give a score from 0-100, we need to get the average
-        if (providedNumber > 1)
-            data.score /= providedNumber
+        if (maxScore > 1)
+            data.score = data.score / maxScore * 100
+
+        data.maxScore = maxScore
 
         logger.info("Calculated fraud score of {} for user input.", data.score)
 
         data.calculationTime = System.currentTimeMillis() - start
-        return JSONObject(json.encodeToString(data))
+
+        val json = JSONObject(json.encodeToString(data))
+        json.put("coords", getCoords(userInput))
+
+        return json
+    }
+
+    private fun getCoords(userInput: UserInput): JSONObject {
+        val geoCode = beanFactory.getBean(GeoCodingService::class.java)
+        val coords = JSONObject()
+
+        userInput.shippingAddress.ifPresent { sa ->
+            geoCode.code(sa).let {
+                coords.put("shipping_address", JSONObject().put("lat", it.latitude).put("lng", it.longitude))
+            }
+
+        }
+
+        userInput.billingAddress.ifPresent { sa ->
+            geoCode.code(sa).let {
+                coords.put("billing_address", JSONObject().put("lat", it.latitude).put("lng", it.longitude))
+            }
+
+        }
+
+        return coords
     }
 
     @Serializable
@@ -82,7 +111,8 @@ class DetectionServiceImpl(val beanFactory: BeanFactory, val json: Json) : Detec
         @SerialName("total_score") var score: Double,
         @SerialName("checked_against") val detectors: MutableList<String> = ArrayList(4),
         @SerialName("calc_ms") var calculationTime: Long,
-        @SerialName("applied_rules") val data: MutableList<Rule> = ArrayList()
+        @SerialName("applied_rules") val data: MutableList<Rule> = ArrayList(),
+        @SerialName("max_score") var maxScore: Double
     )
 
     final override fun registerDetector(detector: Detector) {

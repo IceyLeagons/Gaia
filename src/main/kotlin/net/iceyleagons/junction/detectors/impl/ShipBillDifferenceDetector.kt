@@ -5,7 +5,6 @@ import net.iceyleagons.junction.detectors.Detector
 import net.iceyleagons.junction.detectors.Rule
 import net.iceyleagons.junction.detectors.UserInput
 import net.iceyleagons.junction.utils.Journalist
-import org.json.JSONObject
 import org.springframework.beans.factory.BeanFactory
 import kotlin.jvm.optionals.getOrNull
 
@@ -18,12 +17,18 @@ class ShipBillDifferenceDetector : Detector, Journalist {
 
     override val name = "Shipping & Billing Address"
     override val requiresGpsData = false
+    override val maxScore: Int = 100 // TODO max score 50
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun getScore(userInput: UserInput, context: BeanFactory): Rule {
         val geoCodingService = context.getBean(GeoCodingService::class.java)
         val billing = geoCodingService.codeToReverse(userInput.billingAddress.getOrNull() ?: return Rule.EMPTY_RULE)
         val shipping = geoCodingService.codeToReverse(userInput.shippingAddress.getOrNull() ?: return Rule.EMPTY_RULE)
+
+        // TODO add shipping and billing name
+        // TODO check phone numbers (more data)
+        // If these are the same only return 10, don't bother about differences.
+        // If name is different as well return 50
 
         var score = 0.0
         val cause = ArrayList<String>()
@@ -34,11 +39,15 @@ class ShipBillDifferenceDetector : Detector, Journalist {
 
         if (billing.address.state != shipping.address.state) {
             score += 25
-            cause += "not the same state. (\"${billing.address.state.let {
-                it.ifEmpty { "NO STATE" }
-            }}\" - \"${shipping.address.state.let {
-                it.ifEmpty { "NO STATE" }
-            }}\")"
+            cause += "not the same state. (\"${
+                billing.address.state.let {
+                    it.ifEmpty { "NO STATE" }
+                }
+            }\" - \"${
+                shipping.address.state.let {
+                    it.ifEmpty { "NO STATE" }
+                }
+            }\")"
         }
 
         if (billing.address.region != shipping.address.region || billing.address.county != billing.address.county) {

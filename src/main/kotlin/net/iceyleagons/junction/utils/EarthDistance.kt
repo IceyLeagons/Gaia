@@ -29,7 +29,10 @@ object EarthDistance {
         val latD = Math.toRadians(lat2 - lat1)
         val lonD = Math.toRadians(lng2 - lng1)
 
-        val a = sin(latD / 2) * sin(latD / 2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(lonD / 2) * sin(lonD / 2)
+        val a =
+            sin(latD / 2) * sin(latD / 2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(lonD / 2) * sin(
+                lonD / 2
+            )
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
         return R * c * 1000

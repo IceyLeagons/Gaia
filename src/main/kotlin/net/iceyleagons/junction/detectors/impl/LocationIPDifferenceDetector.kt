@@ -6,7 +6,6 @@ import net.iceyleagons.junction.detectors.Detector
 import net.iceyleagons.junction.detectors.Rule
 import net.iceyleagons.junction.detectors.UserInput
 import net.iceyleagons.junction.utils.Journalist
-import org.json.JSONObject
 import org.springframework.beans.factory.BeanFactory
 import kotlin.jvm.optionals.getOrNull
 
@@ -16,8 +15,10 @@ import kotlin.jvm.optionals.getOrNull
  * @since Oct. 21, 2022
  */
 class LocationIPDifferenceDetector : Detector, Journalist {
+
     override val name: String = "Address Difference"
     override val requiresGpsData = false
+    override val maxScore: Int = 70
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun getScore(userInput: UserInput, context: BeanFactory): Rule {
@@ -36,8 +37,13 @@ class LocationIPDifferenceDetector : Detector, Journalist {
             return Rule.EMPTY_RULE
 
         if (address.country == detailedLocation.country)
-            return Rule(this, "Different city/county detected against IP location (from shipping/billing address)", '+', 10.0)
+            return Rule(
+                this,
+                "Different city/county detected against IP location (from shipping/billing address)",
+                '+',
+                50.0
+            )
 
-        return Rule(this, "Different country detected against IP location (from shipping/billing address)", '+', 30.0)
+        return Rule(this, "Different country detected against IP location (from shipping/billing address)", '+', 70.0)
     }
 }

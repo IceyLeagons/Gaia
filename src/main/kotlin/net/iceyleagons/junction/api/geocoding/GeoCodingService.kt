@@ -3,7 +3,6 @@ package net.iceyleagons.junction.api.geocoding
 import net.iceyleagons.junction.api.geocoding.responses.GeoCodingResponse
 import net.iceyleagons.junction.api.geocoding.responses.ReverseGeoCodingResponse
 import net.iceyleagons.junction.api.geolocation.GeoLocationResponse
-import java.math.BigDecimal
 
 /**
  * @author TOTHTOMI

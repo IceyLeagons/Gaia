@@ -2,8 +2,6 @@ package net.iceyleagons.junction.api.geolocation
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
-import java.math.BigDecimal
 
 /**
  * @author TOTHTOMI

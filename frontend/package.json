@@ -24,6 +24,7 @@
     "leaflet": "^1.9.2",
     "node-sass": "^7.0.3",
     "sass": "^1.55.0",
-    "svelte-otp": "^1.0.9"
+    "svelte-otp": "^1.0.9",
+    "sweetalert": "^2.1.2"
   }
 }

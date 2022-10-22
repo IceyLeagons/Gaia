@@ -5,14 +5,12 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import net.iceyleagons.junction.api.wifi.WigleService
-import net.iceyleagons.junction.api.wifi.responses.WifimapHotspot
 import net.iceyleagons.junction.api.wifi.responses.WigleResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.stereotype.Service
 import org.springframework.web.client.getForObject
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
 /**
@@ -21,8 +19,10 @@ import kotlin.time.toJavaDuration
  * @since Oct. 21, 2022
  */
 @Service
-class WigleServiceImpl(val restTemplateBuilder: RestTemplateBuilder, @Value("\${apis.wigle.key}") wigleKey: String, val json: Json,
-                       @Value("\${caching.expirationMinutes}") val expire: Int, @Value("\${caching.maxSize}") val maxSize: Long): WigleService {
+class WigleServiceImpl(
+    val restTemplateBuilder: RestTemplateBuilder, @Value("\${apis.wigle.key}") wigleKey: String, val json: Json,
+    @Value("\${caching.expirationMinutes}") val expire: Int, @Value("\${caching.maxSize}") val maxSize: Long
+) : WigleService {
 
     val wigleTemplate = restTemplateBuilder.defaultHeader("Authorization", "Basic $wigleKey").build()!!
 

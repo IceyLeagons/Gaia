@@ -8,6 +8,7 @@ import net.iceyleagons.junction.detectors.UserInput
 import net.iceyleagons.junction.utils.EarthDistance
 import org.springframework.beans.factory.BeanFactory
 import kotlin.jvm.optionals.getOrNull
+import kotlin.math.abs
 
 /**
  * @author TOTHTOMI
@@ -18,10 +19,12 @@ class AccountTakeoverDetector : Detector {
 
     override val name: String = "Account Takeover (Impossible Travel)"
     override val requiresGpsData = false
+    override val maxScore: Int = 100
 
-    private val maxDistanceCar = 1000 * 120 // 120 km (in meters)
-    private val maxDistanceBetween = 1000 * 450 // 450 km (this is middle route, when we're uncertain. Since we don't have velocity data, we can only guess)
-    private val maxDistanceAirliner = 1000 * 1000 // 1000km (in meters, average distance by an airliner in an hour is 1000 km)
+    // This are values per hour!!!
+    private val maxDistanceCar: Double = 1000 * 90.0 // 90 km
+    private val maxDistanceBetween: Double = 1000 * 400.0 // 400 km
+    private val maxDistanceAirliner: Double = 1000 * 700.0 // 700 km
 
     private val elapsedTimeThreshold = 1000 * 60 * 60 // 1 hour
 
@@ -43,38 +46,71 @@ class AccountTakeoverDetector : Detector {
         val currentIpDetailed = geoCodingService.decode(currentIp).address
 
         val elapsedTime = currentTime - recentTime
-        val distanceInMeters = EarthDistance.calculate(currentIp.latitude, currentIp.longitude, recentIp.latitude, recentIp.longitude)
+        val distanceInMeters =
+            EarthDistance.calculate(currentIp.latitude, currentIp.longitude, recentIp.latitude, recentIp.longitude)
 
         if (currentIpDetailed.countryCode == recentIpDetailed.countryCode &&
             currentIpDetailed.state == recentIpDetailed.state &&
-            currentIpDetailed.county == recentIpDetailed.state) {
+            currentIpDetailed.county == recentIpDetailed.state
+        ) {
             // Same country, same state, same county. We are likely travelling with a car.
 
             if (maxDistanceCar <= distanceInMeters && elapsedTime <= elapsedTimeThreshold) {
+                val score = getScore(maxDistanceCar, distanceInMeters)
                 return if (currentIpDetailed.region == recentIpDetailed.region)
-                    Rule(this, "User IP address history indicates impossible travel! (User travelled $distanceInMeters meters in 1 hour in the same region. Vehicle is most definitely a car.)", '+', 70.0)
+                    Rule(
+                        this,
+                        "User IP address history indicates impossible travel! (User travelled $distanceInMeters meters in 1 hour in the same region. Vehicle is most definitely a car.)",
+                        '+',
+                        score
+                    )
                 else
-                    Rule(this, "User IP address history indicates impossible travel! (User travelled $distanceInMeters meters in 1 hour in the same state/county. Vehicle is probably a car.)", '+', 60.0)
+                    Rule(
+                        this,
+                        "User IP address history indicates impossible travel! (User travelled $distanceInMeters meters in 1 hour in the same state/county. Vehicle is probably a car.)",
+                        '+',
+                        score
+                    )
             }
         }
 
         if (currentIpDetailed.countryCode.lowercase() == "us" && recentIpDetailed.countryCode.lowercase() == "us" &&
-            currentIpDetailed.state != recentIpDetailed.state) {
+            currentIpDetailed.state != recentIpDetailed.state
+        ) {
             // Very in the US, not the same state. We are very likely to be travelling with a plane
 
+            val score = getScore(maxDistanceAirliner, distanceInMeters)
             if (maxDistanceAirliner <= distanceInMeters && elapsedTime <= elapsedTimeThreshold) {
-                return Rule(this, "User IP address history indicates impossible travel! (User travelled $distanceInMeters meters in 1 hour in the US, to a different state. Vehicle is most definitely an airliner.)", '+', 70.0)
+                return Rule(
+                    this,
+                    "User IP address history indicates impossible travel! (User travelled $distanceInMeters meters in 1 hour in the US, to a different state. Vehicle is most definitely an airliner.)",
+                    '+',
+                    score
+                )
             }
         }
 
         if (currentIpDetailed.countryCode != recentIpDetailed.countryCode) {
             // We are not in the same country, we could be either travelling with a plane, or a car.
             // Because of this we will take a middle distance
+
+            val score = getScore(maxDistanceBetween, distanceInMeters)
             if (maxDistanceBetween <= distanceInMeters && elapsedTime <= elapsedTimeThreshold) {
-                return Rule(this, "User IP address history indicates impossible travel! (User travelled $distanceInMeters meters in 1 hour to a different country. Vehicle can either be an airliner or a car.)", '+', 60.0)
+                return Rule(
+                    this,
+                    "User IP address history indicates impossible travel! (User travelled $distanceInMeters meters in 1 hour to a different country. Vehicle can either be an airliner or a car.)",
+                    '+',
+                    score
+                )
             }
         }
 
         return Rule.EMPTY_RULE
+    }
+
+    fun getScore(maxDistance: Double, distance: Double): Double {
+        val delta = abs(distance - maxDistance)
+        val value = delta / maxDistance * 100
+        return value.coerceAtMost(100.0)
     }
 }

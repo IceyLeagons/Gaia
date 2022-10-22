@@ -1,24 +1,6 @@
 <script>
-    const datas = [
-        {
-            "score": 30.0,
-            "anomaly": "IP address likely to be a TOR exit node!",
-            "detector": "VPN Detector",
-            "operation": "+"
-        },
-        {
-            "score": 50.0,
-            "anomaly": "Different country detected against IP location (from shipping/billing address)",
-            "detector": "Address Difference",
-            "operation": "+"
-        },
-        {
-            "score": 60.0,
-            "anomaly": "User IP address history indicates impossible travel! (User travelled 1460553.9686884005 meters in 1 hour to a different country. Vehicle can either be an airliner or a car.)",
-            "detector": "Account Takeover",
-            "operation": "+"
-        }
-    ];
+    export let raw;
+    const datas = raw["applied_rules"];
 </script>
 
 <div class="list">
@@ -38,37 +20,37 @@
 
 
 <style lang="scss">
-    .list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 
-        width: 100%;
+    width: 100%;
+  }
+
+  .head {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: .5fr 1fr .08fr;
+  }
+
+  .report {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: .5fr 1fr .08fr;
+
+    .score {
+      float: right;
     }
 
-    .head {
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: .5fr 1fr .08fr;
+    h1 {
+      font-size: 1.5rem;
     }
 
-    .report {
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: .5fr 1fr .08fr;
+    border: solid 2px red;
+    background-color: #8a0c0c9d;
 
-        .score {
-            float: right;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-        }
-
-        border: solid 2px red;
-        background-color: #8a0c0c9d;
-
-        padding: 1rem;
-        border-radius: 10px;
-    }
+    padding: 1rem;
+    border-radius: 10px;
+  }
 </style>
