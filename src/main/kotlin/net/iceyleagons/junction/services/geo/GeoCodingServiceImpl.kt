@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import net.iceyleagons.junction.api.GoogleAPIService
 import net.iceyleagons.junction.api.geocoding.GeoCodingService
 import net.iceyleagons.junction.api.geocoding.responses.GeoCodingResponse
 import net.iceyleagons.junction.api.geocoding.responses.ReverseGeoCodingResponse
@@ -26,7 +27,7 @@ import kotlin.time.toJavaDuration
  * @since Oct. 21, 2022
  */
 @Service
-class GeoCodingServiceImpl(restTemplateBuilder: RestTemplateBuilder, val json: Json,
+class GeoCodingServiceImpl(restTemplateBuilder: RestTemplateBuilder, val json: Json, val googleAPIService: GoogleAPIService,
                            @Value("\${caching.expirationMinutes}") val expire: Int, @Value("\${caching.maxSize}") val maxSize: Long) : GeoCodingService {
 
     val restTemplate: RestTemplate = restTemplateBuilder.build()
@@ -53,10 +54,15 @@ class GeoCodingServiceImpl(restTemplateBuilder: RestTemplateBuilder, val json: J
 
     override fun code(query: String): GeoCodingResponse =
         codeCache.get(query.hashCode().toLong()) {
-            println(query)
-            val jsonString: String =
-                restTemplate.getForObject<String>("https://geocode.maps.co/search?q=${query}", String::class).also(::println)
-            json.decodeFromString(JSONArray(jsonString).getJSONObject(0).toString())
+            val jsonString: String = restTemplate.getForObject<String>("https://geocode.maps.co/search?q=${query}", String::class).also(::println)
+            val array = JSONArray(jsonString)
+
+            if (array.isEmpty) {
+                // fallback
+                return@get googleAPIService.locateAddress(query)
+            }
+
+            json.decodeFromString(array.getJSONObject(0).toString())
         }
 
     override fun decode(location: GeoLocationResponse): ReverseGeoCodingResponse = decode(location.latitude, location.longitude)

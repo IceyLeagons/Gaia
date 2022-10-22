@@ -27,6 +27,7 @@ data class ReverseGeoCodingResponse(
      */
     val address: Address
 ) {
+
     /**
      * Responsible for holding the information about an address.
      *
@@ -36,14 +37,17 @@ data class ReverseGeoCodingResponse(
      */
     @Serializable
     data class Address(
-        val road: String = "",
-        val suburb: String = "",
+        val road: String = "", // on google: street_address
+        val neighbourhood: String = "", //on google: neighborhood
+        val suburb: String = "", //
+        val state: String = "", // on google: administrative_area_level_1
         val city: String = "",
+        val village: String = "",
         val municipality: String = "",
-        val county: String = "",
-        val region: String = "",
-        val postcode: String = "",
-        val country: String = "",
-        @SerialName("country_code") val countyCode: String = ""
+        val county: String = "", // on google: administrative_area_level_2
+        val region: String = "", //
+        val postcode: String = "", // on google: postal_code
+        val country: String = "", // on google: country
+        @SerialName("country_code") val countryCode: String = ""
     )
 }

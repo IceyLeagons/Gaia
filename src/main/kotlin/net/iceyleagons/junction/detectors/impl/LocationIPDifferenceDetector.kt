@@ -3,6 +3,7 @@ package net.iceyleagons.junction.detectors.impl
 import net.iceyleagons.junction.api.geocoding.GeoCodingService
 import net.iceyleagons.junction.api.geolocation.GeoLocationService
 import net.iceyleagons.junction.detectors.Detector
+import net.iceyleagons.junction.detectors.Rule
 import net.iceyleagons.junction.detectors.UserInput
 import net.iceyleagons.junction.utils.Journalist
 import org.json.JSONObject
@@ -16,26 +17,27 @@ import kotlin.jvm.optionals.getOrNull
  */
 class LocationIPDifferenceDetector : Detector, Journalist {
     override val name: String = "Address Difference"
-    override val requiresAccurateData = false
+    override val requiresGpsData = false
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun getScore(userInput: UserInput, context: BeanFactory): Pair<Int, JSONObject?> {
+    override fun getScore(userInput: UserInput, context: BeanFactory): Rule {
         val geoLocationService = context.getBean(GeoLocationService::class.java)
         val geoCodingService = context.getBean(GeoCodingService::class.java)
 
+        // We are focusing on shipping, as billing is more likely to be the victims information.
         val address = geoCodingService.codeToReverse(userInput.shippingAddress.getOrNull() ?: kotlin.run {
-            userInput.billingAddress.getOrNull() ?: return@getScore 0 to null
+            userInput.billingAddress.getOrNull() ?: return@getScore Rule.EMPTY_RULE
         }).address
 
         val geoLoc = geoLocationService.locateIP(userInput.ip)
         val detailedLocation = geoCodingService.decode(geoLoc).address
 
         if (address.city == detailedLocation.city && address.country == detailedLocation.country && address.county == detailedLocation.county)
-            return 0 to null
+            return Rule.EMPTY_RULE
 
         if (address.country == detailedLocation.country)
-            return 10 to JSONObject().put("anomaly", "Different city/county detected against IP location (from shipping/billing address)")
+            return Rule(this, "Different city/county detected against IP location (from shipping/billing address)", '+', 10.0)
 
-        return 30 to JSONObject().put("anomaly", "Diferrent country detected against IP location (from shipping/billing address)")
+        return Rule(this, "Different country detected against IP location (from shipping/billing address)", '+', 30.0)
     }
 }
