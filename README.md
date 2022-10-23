@@ -22,7 +22,8 @@ Currently there are 5 different detectors implemented, but their number will onl
 Here's the list of all the ones currently implemented:
 
 - 🙅‍Impossible travel
-    - this is triggered if a user travels more than 120kms in a single hour.
+    - we approximate, whether the user is travelling by plane or car. Then based on this information we select the appropriate threshold.
+    - the detector is triggered if a user travels more than the threshold in a single hour.
 - 🔀 Address Difference
     - there are currently 2 different versions of this implemented.
         - 🚢 Current location vs. Shipping/Billing address
