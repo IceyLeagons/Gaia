@@ -1,5 +1,10 @@
 # 🌿 Gaia
 
+## 🏆🥳🎉🎊 Grand Winner of the 2022 Budapest JunctionX event 
+
+Yes, we have won the hackathon. It's impossible to imagine, but we've done it. Congratulations to all the other submissions, every project was amazing!
+We'd like to thank to organizers as well, truly flawless coordination/management.
+
 ### ✅ 48-hour Hackathon submission to the JunctionX event.
 
 🌿 Gaia is a rest API which checks whether a provided user *- from the provided data -* looks suspicious enough to be
